@@ -15,7 +15,7 @@ export default class Header extends React.Component {
         },
         {
           text: 'Votes',
-          onPress: () => console.log('Ask me later pressed'),
+          onPress: () => this.props.sortByKey(),
         },
         {text: 'Release Dates', onPress: () => console.log('OK Pressed')},
       ],

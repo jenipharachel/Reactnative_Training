@@ -137,6 +137,7 @@ var styles = StyleSheet.create({
     flex: 0.9,
     borderRadius: 20,
     alignItems: 'center',
+    resizeMode: 'contain',
   },
   title: {
     flex: 0.3,

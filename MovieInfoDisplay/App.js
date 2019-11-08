@@ -7,6 +7,7 @@
  */
 
 import React, {Component} from 'react';
+import _ from 'lodash';
 import Header from './src/components/Header';
 import Movies from './src/components/Movies';
 
@@ -19,6 +20,7 @@ export default class App extends Component {
 
   offset = 1;
 
+  //LifeCycle methods
   componentDidMount() {
     return fetch(
       'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
@@ -37,6 +39,7 @@ export default class App extends Component {
       });
   }
 
+  //Custom methods
   loadMoreData = () => {
     this.setState({fetching_from_server: true}, () => {
       fetch(
@@ -56,10 +59,35 @@ export default class App extends Component {
         });
     });
   };
+
+  sortByKey = () => {
+    // console.log(key);
+    const {dataSource} = this.state;
+    var clonedData = dataSource.map(item => ({...item}));
+    // clonedData.sort(compare);
+    clonedData = _.orderBy(clonedData, ['vote_count'], ['desc']);
+    this.setState({dataSource: clonedData});
+
+    // function compare(a, b) {
+    //   if (a[key] < b[key]) return -1;
+    //   if (a[key] > b[key]) return 1;
+    //   return 0;
+    // }
+  };
+
+  // renderData = () => {
+  //   const {dataSource} = this.State;
+  //   return (
+  //     <View>
+  //       <Movies value={{value: dataSource}} sortByKey={this.sortByKey} />
+  //     </View>
+  //   );
+  // };
+
   render() {
     return (
       <>
-        <Header />
+        <Header sortByKey={this.sortByKey} />
         <Movies
           loadMoreData={this.loadMoreData}
           isLoading={this.state.isLoading}
