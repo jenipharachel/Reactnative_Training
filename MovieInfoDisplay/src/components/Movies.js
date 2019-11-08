@@ -73,61 +73,15 @@ function Item({uri, title, lang, votes, release}) {
 }
 
 export default class Movies extends Component {
-  state = {
-    isLoading: true,
-    dataSource: [],
-    fetching_from_server: false,
-  };
-
-  offset = 1;
-
-  componentDidMount() {
-    return fetch(
-      'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
-    )
-      .then(response => response.json())
-      .then(responseJson => {
-        this.offset = this.offset + 1;
-        this.setState({
-          isLoading: false,
-          //   dataSource: responseJson.results,
-          dataSource: [...this.state.dataSource, ...responseJson.results],
-        });
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  }
-
-  loadMoreData = () => {
-    this.setState({fetching_from_server: true}, () => {
-      fetch(
-        'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=' +
-          this.offset,
-      )
-        .then(response => response.json())
-        .then(responseJson => {
-          this.offset = this.offset + 1;
-          this.setState({
-            dataSource: [...this.state.dataSource, ...responseJson.results],
-            fetching_from_server: false,
-          });
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    });
-  };
-
   renderFooter() {
     return (
       <View style={styles.footer}>
         <TouchableOpacity
           activeOpacity={0.9}
-          onPress={this.loadMoreData}
+          onPress={this.props.loadMoreData}
           style={styles.loadMoreBtn}>
           <Text style={styles.btnText}>Load More</Text>
-          {this.state.fetching_from_server ? (
+          {this.props.fetching_from_server ? (
             <ActivityIndicator color="white" style={{marginLeft: 8}} />
           ) : null}
         </TouchableOpacity>
@@ -136,14 +90,14 @@ export default class Movies extends Component {
   }
 
   render() {
-    return this.state.isLoading ? (
+    return this.props.isLoading ? (
       <View style={(styles.container, styles.title)}>
         <Text style={styles.boldText}>The Page is Loading</Text>
       </View>
     ) : (
       <SafeAreaView style={{flex: 1}}>
         <FlatList
-          data={this.state.dataSource}
+          data={this.props.dataSource}
           renderItem={({item}) => (
             <Item
               title={item.title}
