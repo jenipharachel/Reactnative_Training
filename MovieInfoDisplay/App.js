@@ -7,7 +7,6 @@
  */
 
 import React, {Component} from 'react';
-import _ from 'lodash';
 import Header from './src/components/Header';
 import Movies from './src/components/Movies';
 
@@ -60,29 +59,27 @@ export default class App extends Component {
     });
   };
 
-  sortByKey = () => {
-    // console.log(key);
+  sortByKey = key => {
     const {dataSource} = this.state;
-    var clonedData = dataSource.map(item => ({...item}));
-    // clonedData.sort(compare);
-    clonedData = _.orderBy(clonedData, ['vote_count'], ['desc']);
+    const clonedData = dataSource.map(item => ({...item}));
+    clonedData.sort(compare);
+    // const clonedData = _.orderBy(dataSource, ['vote_count'], ['desc']);
     this.setState({dataSource: clonedData});
 
-    // function compare(a, b) {
-    //   if (a[key] < b[key]) return -1;
-    //   if (a[key] > b[key]) return 1;
-    //   return 0;
-    // }
+    function compare(a, b) {
+      if (a[key] < b[key]) return 1;
+      if (a[key] > b[key]) return -1;
+      return 0;
+    }
   };
 
-  // renderData = () => {
-  //   const {dataSource} = this.State;
-  //   return (
-  //     <View>
-  //       <Movies value={{value: dataSource}} sortByKey={this.sortByKey} />
-  //     </View>
-  //   );
-  // };
+  filterByKey = key => {
+    const {dataSource} = this.state;
+    const clonedData = dataSource.map(item => ({...item}));
+    clonedData.filter(compare);
+    // const clonedData = _.orderBy(dataSource, ['vote_count'], ['desc']);
+    this.setState({dataSource: clonedData});
+  };
 
   render() {
     return (

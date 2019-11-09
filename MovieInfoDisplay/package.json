@@ -17,7 +17,9 @@
     "lodash": "^4.17.15",
     "react": "16.9.0",
     "react-native": "0.61.4",
-    "react-native-fontawesome": "^7.0.0"
+    "react-native-fontawesome": "^7.0.0",
+    "react-native-modal-picker": "0.0.16",
+    "react-native-modal-selector": "^1.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
