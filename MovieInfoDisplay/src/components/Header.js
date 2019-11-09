@@ -4,14 +4,13 @@ import ModalSelector from 'react-native-modal-selector';
 
 export default class Header extends Component {
   render() {
-    let index = 0;
     const sortData = [
-      {key: index++, section: true, label: 'Sort Movies based on'},
+      {key: 0, section: true, label: 'Sort Movies based on'},
       {key: 'vote_count', label: 'Votes'},
       {key: 'release_date', label: 'Release Dates'},
     ];
     const filterData = [
-      {key: index++, section: true, label: 'Filter Movies based on language'},
+      {key: 1, section: true, label: 'Filter Movies based on language'},
       {key: 'en', label: 'English'},
       {key: 'ja', label: 'Japanese'},
       {key: 'ca', label: 'Canadian'},
@@ -34,7 +33,7 @@ export default class Header extends Component {
             data={filterData}
             initValue="Filter"
             onChange={option => {
-              this.props.sortByKey(option.key);
+              this.props.setFilter(option.key);
             }}
           />
         </View>

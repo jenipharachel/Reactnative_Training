@@ -90,14 +90,15 @@ export default class Movies extends Component {
   }
 
   render() {
-    return this.props.isLoading ? (
+    return this.props.isLoading || this.props.dataSource == [] ? (
       <View style={(styles.container, styles.title)}>
         <Text style={styles.boldText}>The Page is Loading</Text>
       </View>
     ) : (
       <SafeAreaView style={{flex: 1}}>
         <FlatList
-          data={this.props.dataSource}
+          data={this.props.moviesRender}
+          // renderItem={data => this.props.renderMovies(data)}
           renderItem={({item}) => (
             <Item
               title={item.title}

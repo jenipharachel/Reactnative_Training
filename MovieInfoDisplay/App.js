@@ -15,27 +15,42 @@ export default class App extends Component {
     isLoading: true,
     dataSource: [],
     fetching_from_server: false,
+    filterLanguage: '',
   };
 
   offset = 1;
 
   //LifeCycle methods
-  componentDidMount() {
-    return fetch(
-      'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
-    )
-      .then(response => response.json())
-      .then(responseJson => {
-        this.offset = this.offset + 1;
-        this.setState({
-          isLoading: false,
-          //   dataSource: responseJson.results,
-          dataSource: [...this.state.dataSource, ...responseJson.results],
-        });
-      })
-      .catch(error => {
-        console.error(error);
+  async componentDidMount() {
+    try {
+      let response = await fetch(
+        'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
+      );
+      let responseJson = await response.json();
+      this.offset = this.offset + 1;
+      this.setState({
+        isLoading: false,
+        //   dataSource: responseJson.results,
+        dataSource: [...this.state.dataSource, ...responseJson.results],
       });
+    } catch (error) {
+      console.error(error);
+    }
+    // return fetch(
+    //   'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
+    // )
+    //   .then(response => response.json())
+    //   .then(responseJson => {
+    //     this.offset = this.offset + 1;
+    //     this.setState({
+    //       isLoading: false,
+    //       //   dataSource: responseJson.results,
+    //       dataSource: [...this.state.dataSource, ...responseJson.results],
+    //     });
+    //   })
+    //   .catch(error => {
+    //     console.error(error);
+    //   });
   }
 
   //Custom methods
@@ -73,12 +88,33 @@ export default class App extends Component {
     }
   };
 
-  filterByKey = key => {
-    const {dataSource} = this.state;
-    const clonedData = dataSource.map(item => ({...item}));
-    clonedData.filter(compare);
-    // const clonedData = _.orderBy(dataSource, ['vote_count'], ['desc']);
-    this.setState({dataSource: clonedData});
+  moviesRender = () => {
+    const {dataSource, filterLanguage} = this.state;
+    if (dataSource === []) {
+      this.setState({isLoading: true});
+    } else {
+      if (filterLanguage === '') {
+        return dataSource;
+      } else {
+        const clonedData = dataSource.filter(
+          item => item.original_language == filterLanguage,
+        );
+        return clonedData;
+      }
+    }
+  };
+
+  // filterByKey = key => {
+  //   const {dataSource} = this.state;
+  //   const clonedData = dataSource.filter(item => item.original_language == key);
+  //   // const clonedData = _.orderBy(dataSource, ['vote_count'], ['desc']);
+  //   console.log(clonedData);
+  //   this.setState({filteredData: clonedData});
+  // };
+
+  setFilter = key => {
+    const filterLanguage = key;
+    this.setState({filterLanguage});
   };
 
   render() {
@@ -89,6 +125,7 @@ export default class App extends Component {
           loadMoreData={this.loadMoreData}
           isLoading={this.state.isLoading}
           dataSource={this.state.dataSource}
+          moviesRender={this.state.moviesRender}
           fetching_from_server={this.state.fetching_from_server}
         />
       </>
