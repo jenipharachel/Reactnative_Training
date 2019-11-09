@@ -9,6 +9,7 @@
 import React, {Component} from 'react';
 import Header from './src/components/Header';
 import Movies from './src/components/Movies';
+import _ from 'lodash';
 
 export default class App extends Component {
   state = {
@@ -30,27 +31,11 @@ export default class App extends Component {
       this.offset = this.offset + 1;
       this.setState({
         isLoading: false,
-        //   dataSource: responseJson.results,
-        dataSource: [...this.state.dataSource, ...responseJson.results],
+        dataSource: [...responseJson.results],
       });
     } catch (error) {
       console.error(error);
     }
-    // return fetch(
-    //   'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
-    // )
-    //   .then(response => response.json())
-    //   .then(responseJson => {
-    //     this.offset = this.offset + 1;
-    //     this.setState({
-    //       isLoading: false,
-    //       //   dataSource: responseJson.results,
-    //       dataSource: [...this.state.dataSource, ...responseJson.results],
-    //     });
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
   }
 
   //Custom methods
@@ -63,6 +48,7 @@ export default class App extends Component {
         .then(response => response.json())
         .then(responseJson => {
           this.offset = this.offset + 1;
+          console.log(this.offset);
           this.setState({
             dataSource: [...this.state.dataSource, ...responseJson.results],
             fetching_from_server: false,
@@ -76,56 +62,38 @@ export default class App extends Component {
 
   sortByKey = key => {
     const {dataSource} = this.state;
-    const clonedData = dataSource.map(item => ({...item}));
-    clonedData.sort(compare);
-    // const clonedData = _.orderBy(dataSource, ['vote_count'], ['desc']);
+    const clonedData = _.orderBy(dataSource, [key], ['desc']);
     this.setState({dataSource: clonedData});
-
-    function compare(a, b) {
-      if (a[key] < b[key]) return 1;
-      if (a[key] > b[key]) return -1;
-      return 0;
-    }
   };
 
   moviesRender = () => {
     const {dataSource, filterLanguage} = this.state;
-    if (dataSource === []) {
-      this.setState({isLoading: true});
+    console.log(dataSource);
+    if (filterLanguage == '') {
+      return dataSource;
     } else {
-      if (filterLanguage === '') {
-        return dataSource;
-      } else {
-        const clonedData = dataSource.filter(
-          item => item.original_language == filterLanguage,
-        );
-        return clonedData;
-      }
+      const clonedData = _.filter(
+        dataSource,
+        item => item.original_language == filterLanguage,
+      );
+      return _.orderBy(clonedData, ['vote_count'], ['desc']);
     }
   };
 
-  // filterByKey = key => {
-  //   const {dataSource} = this.state;
-  //   const clonedData = dataSource.filter(item => item.original_language == key);
-  //   // const clonedData = _.orderBy(dataSource, ['vote_count'], ['desc']);
-  //   console.log(clonedData);
-  //   this.setState({filteredData: clonedData});
-  // };
-
   setFilter = key => {
     const filterLanguage = key;
+    console.log(filterLanguage);
     this.setState({filterLanguage});
   };
 
   render() {
     return (
       <>
-        <Header sortByKey={this.sortByKey} />
+        <Header sortByKey={this.sortByKey} setFilter={this.setFilter} />
         <Movies
           loadMoreData={this.loadMoreData}
           isLoading={this.state.isLoading}
-          dataSource={this.state.dataSource}
-          moviesRender={this.state.moviesRender}
+          movies={this.moviesRender()}
           fetching_from_server={this.state.fetching_from_server}
         />
       </>

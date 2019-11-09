@@ -10,39 +10,6 @@ import {
   Image,
 } from 'react-native';
 
-// import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-// import {faCoffee} from '@fortawesome/free-solid-svg-icons';
-
-// const DATA = [
-//   {
-//     id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-//     uri: 'https://upload.wikimedia.org/wikipedia/en/c/c9/Replicas_poster.jpg',
-//     title: 'REPLICAS',
-//     desc: {
-//       time: '1h 50min',
-//       genre: 'Thriller/Mystery',
-//     },
-//   },
-//   {
-//     id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-//     uri: 'https://images-na.ssl-images-amazon.com/images/I/71B6XKhyTaL.jpg',
-//     title: 'The Last Song',
-//     desc: {
-//       time: '1h 45min',
-//       genre: 'Tragedy/Romance',
-//     },
-//   },
-//   {
-//     id: '58694a0f-3da1-471f-bd96-145571e29d72',
-//     uri: 'https://images-na.ssl-images-amazon.com/images/I/A1c9bOWb6RL.jpg',
-//     title: 'The Fault in Our Stars',
-//     desc: {
-//       time: '1h 30min',
-//       genre: 'Tragedy/Romance',
-//     },
-//   },
-// ];
-
 function Item({uri, title, lang, votes, release}) {
   return (
     <>
@@ -56,9 +23,9 @@ function Item({uri, title, lang, votes, release}) {
               <Text style={styles.boldText}>{title}</Text>
             </View>
             <View style={styles.desc}>
-              <Text>{lang}</Text>
-              <Text> {votes}</Text>
-              <Text> {release}</Text>
+              <Text>Lang:{lang}</Text>
+              <Text>Votes:{votes}</Text>
+              <Text>{release}</Text>
             </View>
             <View style={styles.screen}>
               <Text style={styles.border}>IMAX</Text>
@@ -73,7 +40,7 @@ function Item({uri, title, lang, votes, release}) {
 }
 
 export default class Movies extends Component {
-  renderFooter() {
+  renderFooter = () => {
     return (
       <View style={styles.footer}>
         <TouchableOpacity
@@ -87,18 +54,18 @@ export default class Movies extends Component {
         </TouchableOpacity>
       </View>
     );
-  }
+  };
 
   render() {
-    return this.props.isLoading || this.props.dataSource == [] ? (
+    return this.props.isLoading ? (
       <View style={(styles.container, styles.title)}>
+        <ActivityIndicator color="black" style={{alignSelf: 'center'}} />
         <Text style={styles.boldText}>The Page is Loading</Text>
       </View>
     ) : (
       <SafeAreaView style={{flex: 1}}>
         <FlatList
-          data={this.props.moviesRender}
-          // renderItem={data => this.props.renderMovies(data)}
+          data={this.props.movies}
           renderItem={({item}) => (
             <Item
               title={item.title}
@@ -108,8 +75,9 @@ export default class Movies extends Component {
               uri={`https://image.tmdb.org/t/p/w500/${item.poster_path}`}
             />
           )}
-          keyExtractor={item => item.id}
-          ListFooterComponent={this.renderFooter.bind(this)}
+          keyExtractor={item => item.id.toString()}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListFooterComponent={this.renderFooter}
           //Adding Load More button as footer component
         />
       </SafeAreaView>
@@ -163,6 +131,10 @@ var styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
     padding: 5,
+  },
+  separator: {
+    height: 0.5,
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   footer: {
     padding: 10,
