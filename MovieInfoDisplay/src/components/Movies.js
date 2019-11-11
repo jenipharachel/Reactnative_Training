@@ -7,39 +7,20 @@ import {
   View,
   Text,
   FlatList,
-  Image,
 } from 'react-native';
-
-function Item({uri, title, lang, votes, release}) {
-  return (
-    <>
-      <View style={styles.container}>
-        <View style={styles.row}>
-          <View style={styles.col1}>
-            <Image source={{uri}} style={styles.image} />
-          </View>
-          <View style={styles.col2}>
-            <View style={styles.title}>
-              <Text style={styles.boldText}>{title}</Text>
-            </View>
-            <View style={styles.desc}>
-              <Text>Lang:{lang}</Text>
-              <Text>Votes:{votes}</Text>
-              <Text>{release}</Text>
-            </View>
-            <View style={styles.screen}>
-              <Text style={styles.border}>IMAX</Text>
-              <Text style={styles.border}>4D</Text>
-              <Text style={styles.border}>3D</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    </>
-  );
-}
+import Item from './Item';
 
 export default class Movies extends Component {
+  viewMovie = (movie, uri) => {
+    console.log('viewing movie detail', movie);
+    this.props.navigation.push('Details', {
+      imgpath: movie.poster_path,
+      title: movie.title,
+      desc: movie.overview,
+      avgvote: movie.vote_average,
+    });
+  };
+
   renderFooter = () => {
     return (
       <View style={styles.footer}>
@@ -65,13 +46,18 @@ export default class Movies extends Component {
     ) : (
       <SafeAreaView style={{flex: 1}}>
         <FlatList
+          initialNumToRender={10}
+          // refreshing={this.state.refreshing}
+          // onEndReachedThreshold={0.5}
+          onEndThreshold={10}
+          onEndReached={({distanceFromEnd}) => {
+            console.log('on end reached ', distanceFromEnd);
+          }}
           data={this.props.movies}
           renderItem={({item}) => (
             <Item
-              title={item.title}
-              lang={item.original_language}
-              votes={item.vote_count}
-              release={item.release_date}
+              viewMovie={this.viewMovie}
+              movie={item}
               uri={`https://image.tmdb.org/t/p/w500/${item.poster_path}`}
             />
           )}

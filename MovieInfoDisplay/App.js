@@ -9,9 +9,12 @@
 import React, {Component} from 'react';
 import Header from './src/components/Header';
 import Movies from './src/components/Movies';
+import MovieDetails from './src/components/MovieDetails';
+import {createAppContainer} from 'react-navigation';
+import {createStackNavigator} from 'react-navigation-stack';
 import _ from 'lodash';
 
-export default class App extends Component {
+class App extends Component {
   state = {
     isLoading: true,
     dataSource: [],
@@ -22,20 +25,22 @@ export default class App extends Component {
   offset = 1;
 
   //LifeCycle methods
-  async componentDidMount() {
-    try {
-      let response = await fetch(
-        'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
-      );
-      let responseJson = await response.json();
-      this.offset = this.offset + 1;
-      this.setState({
-        isLoading: false,
-        dataSource: [...responseJson.results],
+  componentDidMount() {
+    return fetch(
+      'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
+    )
+      .then(response => response.json())
+      .then(responseJson => {
+        this.offset = this.offset + 1;
+        this.setState({
+          isLoading: false,
+          //   dataSource: responseJson.results,
+          dataSource: [...this.state.dataSource, ...responseJson.results],
+        });
+      })
+      .catch(error => {
+        console.error(error);
       });
-    } catch (error) {
-      console.error(error);
-    }
   }
 
   //Custom methods
@@ -48,7 +53,6 @@ export default class App extends Component {
         .then(response => response.json())
         .then(responseJson => {
           this.offset = this.offset + 1;
-          console.log(this.offset);
           this.setState({
             dataSource: [...this.state.dataSource, ...responseJson.results],
             fetching_from_server: false,
@@ -68,7 +72,6 @@ export default class App extends Component {
 
   moviesRender = () => {
     const {dataSource, filterLanguage} = this.state;
-    console.log(dataSource);
     if (filterLanguage == '') {
       return dataSource;
     } else {
@@ -82,7 +85,7 @@ export default class App extends Component {
 
   setFilter = key => {
     const filterLanguage = key;
-    console.log(filterLanguage);
+    console.log(key);
     this.setState({filterLanguage});
   };
 
@@ -91,6 +94,7 @@ export default class App extends Component {
       <>
         <Header sortByKey={this.sortByKey} setFilter={this.setFilter} />
         <Movies
+          navigation={this.props.navigation}
           loadMoreData={this.loadMoreData}
           isLoading={this.state.isLoading}
           movies={this.moviesRender()}
@@ -100,3 +104,10 @@ export default class App extends Component {
     );
   }
 }
+
+const AppNavigator = createStackNavigator({
+  Home: App,
+  Details: MovieDetails,
+});
+
+export default createAppContainer(AppNavigator);
