@@ -15,6 +15,10 @@ import {createStackNavigator} from 'react-navigation-stack';
 import _ from 'lodash';
 
 class App extends Component {
+  static navigationOptions = {
+    title: 'Home',
+  };
+
   state = {
     isLoading: true,
     dataSource: [],

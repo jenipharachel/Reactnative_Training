@@ -13,12 +13,7 @@ import Item from './Item';
 export default class Movies extends Component {
   viewMovie = (movie, uri) => {
     console.log('viewing movie detail', movie);
-    this.props.navigation.push('Details', {
-      imgpath: movie.poster_path,
-      title: movie.title,
-      desc: movie.overview,
-      avgvote: movie.vote_average,
-    });
+    this.props.navigation.push('Details', {...movie});
   };
 
   renderFooter = () => {
@@ -58,6 +53,7 @@ export default class Movies extends Component {
             <Item
               viewMovie={this.viewMovie}
               movie={item}
+              id={item.id}
               uri={`https://image.tmdb.org/t/p/w500/${item.poster_path}`}
             />
           )}
