@@ -1,39 +1,21 @@
 import React, {Component} from 'react';
-import {
-  SafeAreaView,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-  View,
-  Text,
-  Button,
-  FlatList,
-  Image,
-} from 'react-native';
+import {StyleSheet, View, Text, Image} from 'react-native';
 
 export default class MovieDetails extends Component {
   // static navigationOptions = {
   //   title: this.props.navigation.getParam('title'),
   // };
 
-  // {
-  //   imgpath: `https://image.tmdb.org/t/p/w500/${movie.poster_path}`,
-  //   title: movie.title,
-  //   desc: movie.overview,
-  //   avgvote: movie.vote_average,
-  //   release: movie.release_date,
-  // }
-
   render() {
     console.log(this);
-    imgsrc = `https://image.tmdb.org/t/p/w500/${this.props.navigation.getParam(
+    uri = `https://image.tmdb.org/t/p/w500/${this.props.navigation.getParam(
       'poster_path',
     )}`;
-    console.log(imgsrc);
+    console.log(uri);
     return (
       <View style={styles.container}>
         <View style={styles.row1}>
-          <Image source={{imgsrc}} style={styles.image} />
+          <Image source={{uri}} style={styles.image} />
         </View>
         <View style={styles.row2}>
           <View style={styles.title}>
@@ -69,9 +51,10 @@ var styles = StyleSheet.create({
     flex: 0.6,
   },
   image: {
-    flex: 0.9,
+    flex: 1,
     borderRadius: 20,
     alignItems: 'center',
+    justifyContent: 'center',
     resizeMode: 'contain',
   },
   title: {

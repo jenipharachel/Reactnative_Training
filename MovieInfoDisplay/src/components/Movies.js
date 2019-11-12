@@ -44,7 +44,7 @@ export default class Movies extends Component {
           initialNumToRender={10}
           // refreshing={this.state.refreshing}
           // onEndReachedThreshold={0.5}
-          onEndThreshold={10}
+          // onEndThreshold={10}
           onEndReached={({distanceFromEnd}) => {
             console.log('on end reached ', distanceFromEnd);
           }}
@@ -53,7 +53,7 @@ export default class Movies extends Component {
             <Item
               viewMovie={this.viewMovie}
               movie={item}
-              id={item.id}
+              key={item.id}
               uri={`https://image.tmdb.org/t/p/w500/${item.poster_path}`}
             />
           )}

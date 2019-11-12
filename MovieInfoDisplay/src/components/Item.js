@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {TouchableOpacity, StyleSheet, View, Text, Image} from 'react-native';
 
 const Item = ({viewMovie, movie, uri}) => {
+  console.log(uri);
   return (
     <>
       <TouchableOpacity
