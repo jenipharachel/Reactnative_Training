@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "31318755568",
+    "firebase_url": "https://movie-review-jen.firebaseio.com",
+    "project_id": "movie-review-jen",
+    "storage_bucket": "movie-review-jen.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31318755568:android:1e696eb7d15232ac099a35",
+        "android_client_info": {
+          "package_name": "com.movieinfodisplay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "31318755568-suojj00hbac7k3n8lgp6vvre5c2adc8a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVxVijozOv25jjKC5z96t5alOGF0k690c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "31318755568-suojj00hbac7k3n8lgp6vvre5c2adc8a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

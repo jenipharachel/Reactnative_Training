@@ -7,7 +7,6 @@ export default class MovieDetails extends Component {
   // };
 
   render() {
-    console.log(this);
     uri = `https://image.tmdb.org/t/p/w500/${this.props.navigation.getParam(
       'poster_path',
     )}`;

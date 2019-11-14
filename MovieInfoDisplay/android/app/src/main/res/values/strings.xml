@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MovieInfoDisplay</string>
+    <string name="facebook_app_id">2426401927621411</string>
+    <string name="fb_login_protocol_scheme">fb2426401927621411</string>
 </resources>

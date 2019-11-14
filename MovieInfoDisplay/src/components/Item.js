@@ -1,13 +1,12 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {TouchableOpacity, StyleSheet, View, Text, Image} from 'react-native';
 
 const Item = ({viewMovie, movie, uri}) => {
-  console.log(uri);
   return (
     <>
       <TouchableOpacity
         style={styles.container}
-        onPress={() => viewMovie(movie, uri)}>
+        onPress={() => viewMovie(movie)}>
         <View style={styles.row}>
           <View style={styles.col1}>
             <Image source={{uri}} style={styles.image} />

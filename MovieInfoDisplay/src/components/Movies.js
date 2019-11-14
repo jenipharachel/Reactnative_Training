@@ -11,8 +11,7 @@ import {
 import Item from './Item';
 
 export default class Movies extends Component {
-  viewMovie = (movie, uri) => {
-    console.log('viewing movie detail', movie);
+  viewMovie = movie => {
     this.props.navigation.push('Details', {...movie});
   };
 

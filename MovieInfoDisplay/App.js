@@ -7,11 +7,22 @@
  */
 
 import React, {Component} from 'react';
+import {View, Text} from 'react-native';
 import Header from './src/components/Header';
 import Movies from './src/components/Movies';
 import MovieDetails from './src/components/MovieDetails';
+import Login from './src/components/Login';
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
+// import auth from '@react-native-firebase/auth';
+import {firebase} from '@react-native-firebase/auth';
+import {LoginButton, AccessToken} from 'react-native-fbsdk';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-community/google-signin';
+
 import _ from 'lodash';
 
 class App extends Component {
@@ -24,12 +35,32 @@ class App extends Component {
     dataSource: [],
     fetching_from_server: false,
     filterLanguage: '',
+    loggedIn: false,
   };
 
   offset = 1;
 
   //LifeCycle methods
   componentDidMount() {
+    GoogleSignin.configure({
+      // scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
+      webClientId:
+        '31318755568-suojj00hbac7k3n8lgp6vvre5c2adc8a.apps.googleusercontent.com', // client ID of type WEB for your server (needed to verify user ID and offline access)
+      offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+      hostedDomain: '', // specifies a hosted domain restriction
+      loginHint: '', // [iOS] The user's ID, or email address, to be prefilled in the authentication UI if possible. [See docs here](https://developers.google.com/identity/sign-in/ios/api/interface_g_i_d_sign_in.html#a0a68c7504c31ab0b728432565f6e33fd)
+      forceConsentPrompt: true, // [Android] if you want to show the authorization prompt at each login.
+      accountName: '', // [Android] specifies an account name on the device that should be used
+      // iosClientId: '124018728460-krv1hjdv0mp51pisuc1104q5nfd440ae.apps.googleusercontent.com', // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
+    });
+    // async function bootstrap() {
+    //   await GoogleSignin.configure({
+    //     scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+    //     webClientId:
+    //       '31318755568-suojj00hbac7k3n8lgp6vvre5c2adc8a.apps.googleusercontent.com', // required
+    //   });
+    // }
+
     return fetch(
       'https://api.themoviedb.org/3/movie/popular?api_key=f9340678aa6a61a60578f56c8f272f61&page=1',
     )
@@ -48,6 +79,41 @@ class App extends Component {
   }
 
   //Custom methods
+  _signIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      this.setState({userInfo, loggedIn: true});
+      const credential = firebase.auth.GoogleAuthProvider.credential(
+        idToken,
+        accessToken,
+      );
+      const firebaseUserCredential = await firebase
+        .auth()
+        .signInWithCredential(credential);
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user cancelled the login flow
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // operation (e.g. sign in) is in progress already
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        // play services not available or outdated
+      } else {
+        // some other error happened
+      }
+    }
+  };
+
+  signOut = async () => {
+    try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      this.setState({user: null, loggedIn: false}); // Remember to remove the user from your app's state as well
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   loadMoreData = () => {
     this.setState({fetching_from_server: true}, () => {
       fetch(
@@ -93,21 +159,78 @@ class App extends Component {
     this.setState({filterLanguage});
   };
 
+  loggedIn = () => {
+    this.setState({loggedIn: true});
+  };
+
   render() {
+    // if (this.state.loggedIn) {
+    //   return (
+    //     <>
+    //       <Header sortByKey={this.sortByKey} setFilter={this.setFilter} />
+    //       <Movies
+    //         navigation={this.props.navigation}
+    //         loadMoreData={this.loadMoreData}
+    //         isLoading={this.state.isLoading}
+    //         movies={this.moviesRender()}
+    //         fetching_from_server={this.state.fetching_from_server}
+    //       />
+    //     </>
+    //   );
+    // } else {
     return (
       <>
         <Header sortByKey={this.sortByKey} setFilter={this.setFilter} />
-        <Movies
-          navigation={this.props.navigation}
-          loadMoreData={this.loadMoreData}
-          isLoading={this.state.isLoading}
-          movies={this.moviesRender()}
-          fetching_from_server={this.state.fetching_from_server}
+        <View>
+          {!this.state.loggedIn && <Text>You are currently logged out</Text>}
+        </View>
+        {this.state.loggedIn && (
+          <Movies
+            navigation={this.props.navigation}
+            loadMoreData={this.loadMoreData}
+            isLoading={this.state.isLoading}
+            movies={this.moviesRender()}
+            fetching_from_server={this.state.fetching_from_server}
+          />
+        )}
+        <LoginButton
+          onLoginFinished={(error, result) => {
+            if (error) {
+              console.log('login has error: ' + result.error);
+            } else if (result.isCancelled) {
+              console.log('login is cancelled.');
+            } else {
+              console.log(result);
+              AccessToken.getCurrentAccessToken().then(data => {
+                this.setState({
+                  loggedIn: true,
+                  userID: data.userID,
+                });
+                console.log(data, data.accessToken.toString());
+              });
+            }
+          }}
+          onLogoutFinished={() =>
+            this.setState({
+              loggedIn: false,
+              userID: '',
+            })
+          }
         />
+        <GoogleSigninButton
+          style={{width: 192, height: 48}}
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={this._signIn}
+          disabled={this.state.isSigninInProgress}
+        />
+
+        {/* <Button title="Login with Facebook" onPress={this.facebookLogin} /> */}
       </>
     );
   }
 }
+// }
 
 const AppNavigator = createStackNavigator({
   Home: App,
