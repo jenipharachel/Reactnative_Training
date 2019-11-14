@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Button} from 'react-native';
 import Header from './src/components/Header';
 import Movies from './src/components/Movies';
 import MovieDetails from './src/components/MovieDetails';
@@ -53,6 +53,7 @@ class App extends Component {
       accountName: '', // [Android] specifies an account name on the device that should be used
       // iosClientId: '124018728460-krv1hjdv0mp51pisuc1104q5nfd440ae.apps.googleusercontent.com', // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
+
     // async function bootstrap() {
     //   await GoogleSignin.configure({
     //     scopes: ['https://www.googleapis.com/auth/drive.readonly'],
@@ -79,27 +80,78 @@ class App extends Component {
   }
 
   //Custom methods
-  _signIn = async () => {
+  firebaseGoogleLogin = async () => {
     try {
+      // add any configuration settings here:
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      this.setState({userInfo, loggedIn: true});
+      this.setState({userInfo: userInfo, loggedIn: true});
+      console.log(userInfo);
+      // create a new firebase credential with the token
       const credential = firebase.auth.GoogleAuthProvider.credential(
-        idToken,
-        accessToken,
+        userInfo.idToken,
+        userInfo.accessToken,
       );
+      // login with credential
       const firebaseUserCredential = await firebase
         .auth()
         .signInWithCredential(credential);
+
+      console.warn(JSON.stringify(firebaseUserCredential.user.toJSON()));
     } catch (error) {
+      console.log(error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
+        console.log('user cancelled the login flow');
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        // operation (e.g. sign in) is in progress already
+        // operation (f.e. sign in) is in progress already
+        console.log('operation (f.e. sign in) is in progress already');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         // play services not available or outdated
+        console.log('play services not available or outdated');
       } else {
         // some other error happened
+        console.log('some other error happened');
+      }
+    }
+  };
+
+  // _signIn = async () => {
+  //   try {
+  //     await GoogleSignin.hasPlayServices();
+  //     const userInfo = await GoogleSignin.signIn();
+  //     this.setState({userInfo: userInfo, loggedIn: true});
+  //     console.log(userInfo);
+  //   } catch (error) {
+  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+  //       // user cancelled the login flow
+  //       console.log('user cancelled the login flow');
+  //     } else if (error.code === statusCodes.IN_PROGRESS) {
+  //       // operation (f.e. sign in) is in progress already
+  //       console.log('operation (f.e. sign in) is in progress already');
+  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+  //       // play services not available or outdated
+  //       console.log('play services not available or outdated');
+  //     } else {
+  //       // some other error happened
+  //       console.log('some other error happened');
+  //     }
+  //   }
+  // };
+
+  getCurrentUserInfo = async () => {
+    try {
+      const userInfo = await GoogleSignin.signInSilently();
+      this.setState({userInfo});
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_REQUIRED) {
+        // user has not signed in yet
+        console.log('user has not signed in yet');
+        this.setState({loggedIn: false});
+      } else {
+        // some other error
+        console.log('some other error happened');
+        this.setState({loggedIn: false});
       }
     }
   };
@@ -164,20 +216,6 @@ class App extends Component {
   };
 
   render() {
-    // if (this.state.loggedIn) {
-    //   return (
-    //     <>
-    //       <Header sortByKey={this.sortByKey} setFilter={this.setFilter} />
-    //       <Movies
-    //         navigation={this.props.navigation}
-    //         loadMoreData={this.loadMoreData}
-    //         isLoading={this.state.isLoading}
-    //         movies={this.moviesRender()}
-    //         fetching_from_server={this.state.fetching_from_server}
-    //       />
-    //     </>
-    //   );
-    // } else {
     return (
       <>
         <Header sortByKey={this.sortByKey} setFilter={this.setFilter} />
@@ -217,13 +255,21 @@ class App extends Component {
             })
           }
         />
-        <GoogleSigninButton
-          style={{width: 192, height: 48}}
-          size={GoogleSigninButton.Size.Wide}
-          color={GoogleSigninButton.Color.Dark}
-          onPress={this._signIn}
-          disabled={this.state.isSigninInProgress}
-        />
+        {!this.state.loggedIn && (
+          <GoogleSigninButton
+            style={{width: 192, height: 48}}
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={this.firebaseGoogleLogin}
+            disabled={this.state.isSigninInProgress}
+          />
+        )}
+        {this.state.loggedIn && (
+          <Button
+            onPress={this.signOut}
+            title="Signout"
+            color="#841584"></Button>
+        )}
 
         {/* <Button title="Login with Facebook" onPress={this.facebookLogin} /> */}
       </>
