@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {View, Text, Button} from 'react-native';
+import {View, Text, Button, StyleSheet} from 'react-native';
 import Header from './src/components/Header';
 import Movies from './src/components/Movies';
 import MovieDetails from './src/components/MovieDetails';
@@ -160,7 +160,7 @@ class App extends Component {
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
-      this.setState({user: null, loggedIn: false}); // Remember to remove the user from your app's state as well
+      this.setState({userInfo: null, loggedIn: false}); // Remember to remove the user from your app's state as well
     } catch (error) {
       console.error(error);
     }
@@ -211,15 +211,11 @@ class App extends Component {
     this.setState({filterLanguage});
   };
 
-  loggedIn = () => {
-    this.setState({loggedIn: true});
-  };
-
   render() {
     return (
       <>
         <Header sortByKey={this.sortByKey} setFilter={this.setFilter} />
-        <View>
+        <View style={styles.centerContent}>
           {!this.state.loggedIn && <Text>You are currently logged out</Text>}
         </View>
         {this.state.loggedIn && (
@@ -231,52 +227,60 @@ class App extends Component {
             fetching_from_server={this.state.fetching_from_server}
           />
         )}
-        <LoginButton
-          onLoginFinished={(error, result) => {
-            if (error) {
-              console.log('login has error: ' + result.error);
-            } else if (result.isCancelled) {
-              console.log('login is cancelled.');
-            } else {
-              console.log(result);
-              AccessToken.getCurrentAccessToken().then(data => {
+        {!this.state.userInfo && (
+          <View style={styles.centerContent}>
+            <LoginButton
+              onLoginFinished={(error, result) => {
+                if (error) {
+                  console.log('login has error: ' + result.error);
+                } else if (result.isCancelled) {
+                  console.log('login is cancelled.');
+                } else {
+                  console.log(result);
+                  AccessToken.getCurrentAccessToken().then(data => {
+                    this.setState({
+                      loggedIn: true,
+                      userID: data.userID,
+                    });
+                    console.log(data, data.accessToken.toString());
+                  });
+                }
+              }}
+              onLogoutFinished={() =>
                 this.setState({
-                  loggedIn: true,
-                  userID: data.userID,
-                });
-                console.log(data, data.accessToken.toString());
-              });
-            }
-          }}
-          onLogoutFinished={() =>
-            this.setState({
-              loggedIn: false,
-              userID: '',
-            })
-          }
-        />
+                  loggedIn: false,
+                  userID: '',
+                })
+              }
+            />
+          </View>
+        )}
         {!this.state.loggedIn && (
-          <GoogleSigninButton
-            style={{width: 192, height: 48}}
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-            onPress={this.firebaseGoogleLogin}
-            disabled={this.state.isSigninInProgress}
-          />
+          <View style={styles.centerContent}>
+            <GoogleSigninButton
+              style={{width: 192, height: 48}}
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Dark}
+              onPress={this.firebaseGoogleLogin}
+              disabled={this.state.isSigninInProgress}
+            />
+          </View>
         )}
-        {this.state.loggedIn && (
-          <Button
-            onPress={this.signOut}
-            title="Signout"
-            color="#841584"></Button>
+        {this.state.loggedIn && !this.state.userID && (
+          <View style={styles.centerContent}>
+            <Button onPress={this.signOut} title="Signout" color="#841584" />
+          </View>
         )}
-
-        {/* <Button title="Login with Facebook" onPress={this.facebookLogin} /> */}
       </>
     );
   }
 }
-// }
+
+var styles = StyleSheet.create({
+  centerContent: {
+    alignItems: 'center',
+  },
+});
 
 const AppNavigator = createStackNavigator({
   Home: App,
